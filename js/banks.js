@@ -52,7 +52,7 @@ function getSeparator(filename, separators) {
   if (separator) {
     return separator;
   }
-  throw "Input file must have a supported file extension"; 
+  throw "Input file must have a supported file extension";
 }
 
 function convert(data, filename) {
@@ -138,6 +138,20 @@ function convertBoobank(fields) {
   return (date + ";;;;" + trimMemo(memo) + ";" + amount + ";;");
 }
 
+function convertFortis(fields) {
+  var date = moment(fields[2], 'DD/MM/YYYY');
+  if (!date.isValid()) {
+    throw "Invalid date: " + fields[2];
+  }
+  date = date.format('MM-DD-YY');
+  var memo = "";
+  memo += trimSymbol(fields[5], ';');
+  memo += fields[6];
+  var paymode = getPayModeFromMemo(memo.toUpperCase());
+  var amount = fields[3];
+  return (date + ";" + paymode+ ";;;" + trimMemo(memo) + ";" + amount + ";;");
+}
+
 function bank(name, encoding, firstField, minFieldCount, convertLine, separators, headSeparators) {
   // default
   this.convert = convert;
@@ -157,3 +171,4 @@ var banks = [];
 banks.push(new bank("Banque Postale", "ascii", "Date", 3, convertBanquePostale, { "csv": ";", "tsv": "\t" }, null));
 banks.push(new bank("Boobank", "utf-8", "id", 9, convertBoobank, { "csv": ";" }, null));
 banks.push(new bank("PayPal", "ascii", "Date", 16, convertPaypal, { "csv": '","', "txt": '"\t"' }, { "csv": ',', "txt": '\t' }));
+banks.push(new bank("Fortis", "utf-8", "Numéro de séquence", 8, convertFortis, {"csv": ";"}, null ));
