@@ -146,6 +146,7 @@ function convertFortis(fields) {
   date = date.format('MM-DD-YY');
   var memo = "";
   memo += trimSymbol(fields[5], ';');
+  memo += " ";
   memo += fields[6];
   var paymode = getPayModeFromMemo(memo.toUpperCase());
   var amount = fields[3];
